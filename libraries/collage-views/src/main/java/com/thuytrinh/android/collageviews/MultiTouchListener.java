@@ -3,6 +3,7 @@ package com.thuytrinh.android.collageviews;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 
 public class MultiTouchListener implements OnTouchListener {
 
@@ -56,51 +57,93 @@ public class MultiTouchListener implements OnTouchListener {
         //checks if the view is allowed to translate in X or Y direction
         // and if the view has reached the boundries of its parent
         if(isTranslatableX && !hasReachedEdgeX(view, transX)){
-        	view.setTranslationX(transX);
+            view.setTranslationX(transX);
         }
         if(isTranslatableY && !hasReachedEdgeY(view, transY)){
-        	view.setTranslationY(transY);
+            view.setTranslationY(transY);
         }
     }
-    
+//    private static boolean hasReachedEdgeX(View v, float newTransX){
+//    	if(canCrossParentBoundries){
+//    		return false;
+//    	}
+//    	Boolean reachedEdge = true;
+//    	int viewRight = v.getRight();
+//    	int viewLeft = v.getLeft();
+//    	View p = (View) v.getParent();
+//    	int pRight = p.getRight();
+//    	int pLeft = p.getLeft();
+//    	float newViewRight = viewRight + newTransX;
+//    	float newViewLeft = viewLeft + newTransX;
+//    	//checks if the view has reached the boundaries of its parent
+//    	if((newViewLeft > pLeft) && (newViewRight < pRight)){
+//    		reachedEdge = false;
+//    	}
+//		return reachedEdge;
+//    }
+//
+//    private static boolean hasReachedEdgeY(View v, float newTransY){
+//    	if(canCrossParentBoundries){
+//    		return false;
+//    	}
+//    	Boolean reachedEdge = true;
+//    	int viewTop = v.getTop();
+//    	int viewBottom = v.getBottom();
+//    	View p = (View) v.getParent();
+//    	int parentTop = p.getTop();
+//    	int parentBottom = p.getBottom();
+//    	float newViewTop = viewTop + newTransY;
+//    	float newViewBottom = viewBottom + newTransY;
+//    	//checks if the view has reached the boundaries of its parent
+//    	if((newViewBottom < parentBottom) && (newViewTop > parentTop)){
+//    		reachedEdge = false;
+//    	}
+//		return reachedEdge;
+//    }
+
     private static boolean hasReachedEdgeX(View v, float newTransX){
-    	if(canCrossParentBoundries){
-    		return false;
-    	}
-    	Boolean reachedEdge = true;
-    	int viewRight = v.getRight();
-    	int viewLeft = v.getLeft();
-    	View p = (View) v.getParent();
-    	int pRight = p.getRight();
-    	int pLeft = p.getLeft();
-    	float newViewRight = viewRight + newTransX;
-    	float newViewLeft = viewLeft + newTransX;
-    	//checks if the view has reached the boundaries of its parent
-    	if((newViewLeft > pLeft) && (newViewRight < pRight)){
-    		reachedEdge = false;
-    	}
-		return reachedEdge;
+        if(canCrossParentBoundries){
+            return false;
+        }
+        Boolean reachedEdge = true;
+        int adjustedWidth = (int) ((v.getWidth() * v.getScaleX() - v.getWidth()) / 2.f);
+        int viewLeft = v.getLeft() - adjustedWidth;
+        int viewRight = v.getRight() + adjustedWidth;
+        View p = (View) v.getParent();
+        ViewGroup.MarginLayoutParams pLayoutParams = (ViewGroup.MarginLayoutParams) p.getLayoutParams();
+        int pLeft = p.getLeft() - pLayoutParams.leftMargin;
+        int pRight = p.getRight() - pLayoutParams.leftMargin - pLayoutParams.rightMargin;
+        float newViewRight = viewRight + newTransX;
+        float newViewLeft = viewLeft + newTransX;
+        //checks if the view has reached the boundaries of its parent
+        if((newViewLeft > pLeft) && (newViewRight < pRight)){
+            reachedEdge = false;
+        }
+        return reachedEdge;
     }
-    
+
     private static boolean hasReachedEdgeY(View v, float newTransY){
-    	if(canCrossParentBoundries){
-    		return false;
-    	}
-    	Boolean reachedEdge = true;
-    	int viewTop = v.getTop();
-    	int viewBottom = v.getBottom();
-    	View p = (View) v.getParent();
-    	int parentTop = p.getTop();
-    	int parentBottom = p.getBottom();
-    	float newViewTop = viewTop + newTransY;
-    	float newViewBottom = viewBottom + newTransY;
-    	//checks if the view has reached the boundaries of its parent
-    	if((newViewBottom < parentBottom) && (newViewTop > parentTop)){
-    		reachedEdge = false;
-    	}
-		return reachedEdge;
+        if(canCrossParentBoundries){
+            return false;
+        }
+        Boolean reachedEdge = true;
+        int adjustedHeight = (int) ((v.getHeight() * v.getScaleY() - v.getHeight()) / 2.f);
+        int viewTop = v.getTop() - adjustedHeight;
+        int viewBottom = v.getBottom() + adjustedHeight;
+        View p = (View) v.getParent();
+        ViewGroup.MarginLayoutParams pLayoutParams = (ViewGroup.MarginLayoutParams) p.getLayoutParams();
+        int parentTop = p.getTop() - pLayoutParams.topMargin;
+        int parentBottom = p.getBottom() - pLayoutParams.topMargin - pLayoutParams.bottomMargin;
+        float newViewTop = viewTop + newTransY;
+        float newViewBottom = viewBottom + newTransY;
+        //checks if the view has reached the boundaries of its parent
+        if((newViewBottom < parentBottom) && (newViewTop > parentTop)){
+            reachedEdge = false;
+        }
+        return reachedEdge;
     }
-    
+
+
     private static void computeRenderOffset(View view, float pivotX, float pivotY) {
         if (view.getPivotX() == pivotX && view.getPivotY() == pivotY) {
             return;
